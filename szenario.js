@@ -177,7 +177,7 @@ function formatCurrency(amount) {
 // Load tax data (simplified for scenario calculator)
 async function loadTaxData() {
     try {
-        const response = await fetch('/data/2025.json');
+        const response = await fetch('/beercalc/data/2025.json');
         return await response.json();
     } catch (error) {
         console.error('Error loading tax data:', error);
