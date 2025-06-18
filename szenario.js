@@ -196,12 +196,21 @@ function formatCurrency(amount) {
 
 // Load tax data (simplified for scenario calculator)
 async function loadTaxData() {
+    debugLog('Loading tax data...');
     try {
         const response = await fetch('/beercalc/data/2025.json');
-        return await response.json();
+        debugLog('Tax data fetch response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        debugSuccess('Tax data loaded successfully:', data);
+        return data;
     } catch (error) {
-        console.error('Error loading tax data:', error);
-        return {
+        debugError('Error loading tax data, using fallback:', error);
+        const fallbackData = {
             taxRates: {
                 personalIncomeTax: 0.15,
                 socialSecurityEmployee: 0.185,
@@ -216,11 +225,15 @@ async function loadTaxData() {
             minimumWage: 290800,
             averageWage: 708300
         };
+        debugLog('Using fallback tax data:', fallbackData);
+        return fallbackData;
     }
 }
 
 // Calculate net salary (simplified version)
 async function calculateNetSalary(grossSalary, options = {}) {
+    debugLog('calculateNetSalary called with:', { grossSalary, options });
+    
     const taxData = await loadTaxData();
     
     const children = options.children || 0;
@@ -229,19 +242,27 @@ async function calculateNetSalary(grossSalary, options = {}) {
     const firstMarriage = options.firstMarriage || false;
     const studentStatus = options.studentStatus || false;
     
+    debugLog('Salary calculation parameters:', { 
+        grossSalary, children, under25, under30Mother, firstMarriage, studentStatus 
+    });
+    
     // Base calculations
     let personalTax = grossSalary * taxData.taxRates.personalIncomeTax;
     let socialSecurity = grossSalary * taxData.taxRates.socialSecurityEmployee;
     let pension = grossSalary * taxData.taxRates.pensionEmployee;
     let unemployment = studentStatus ? 0 : grossSalary * taxData.taxRates.unemploymentEmployee;
     
+    debugLog('Base tax calculations:', { personalTax, socialSecurity, pension, unemployment });
+    
     // Apply exemptions
     if (under25) {
         personalTax = 0;
+        debugLog('Applied under-25 exemption');
     }
     
     if (under30Mother && children > 0) {
         personalTax = 0;
+        debugLog('Applied under-30 mother exemption');
     }
     
     // Family allowances
@@ -254,10 +275,12 @@ async function calculateNetSalary(grossSalary, options = {}) {
         familyAllowance = taxData.familyAllowances.threeOrMoreChildren;
     }
     
+    debugLog('Family allowance calculated:', familyAllowance);
+    
     const totalDeductions = personalTax + socialSecurity + pension + unemployment;
     const netSalary = grossSalary - totalDeductions + familyAllowance;
     
-    return {
+    const result = {
         gross: grossSalary,
         net: netSalary,
         personalTax,
@@ -267,6 +290,10 @@ async function calculateNetSalary(grossSalary, options = {}) {
         familyAllowance,
         totalDeductions
     };
+    
+    debugLog('Net salary calculation result:', result);
+    
+    return result;
 }
 
 // Initialize scenario calculator
@@ -466,52 +493,75 @@ async function calculateScenario() {
     }
     
     debugSuccess('Data validation passed!');
-    
-    // Calculate scenarios based on type
+      // Calculate scenarios based on type
     let currentResult, newResult;
-      try {
+    
+    try {
+        debugLog('Starting calculation for scenario:', currentScenario);
+        
         switch (currentScenario) {
             case 'salary-increase':
+                debugLog('Calling calculateSalaryIncrease with data:', formData);
                 ({ currentResult, newResult } = await calculateSalaryIncrease(formData));
                 break;
             case 'job-change':
+                debugLog('Calling calculateJobChange with data:', formData);
                 ({ currentResult, newResult } = await calculateJobChange(formData));
                 break;
             case 'family-change':
+                debugLog('Calling calculateFamilyChange with data:', formData);
                 ({ currentResult, newResult } = await calculateFamilyChange(formData));
                 break;
             case 'age-milestone':
+                debugLog('Calling calculateAgeMilestone with data:', formData);
                 ({ currentResult, newResult } = await calculateAgeMilestone(formData));
                 break;
             case 'retirement':
+                debugLog('Calling calculateRetirement with data:', formData);
                 ({ currentResult, newResult } = await calculateRetirement(formData));
                 break;
             case 'education':
+                debugLog('Calling calculateEducation with data:', formData);
                 ({ currentResult, newResult } = await calculateEducation(formData));
                 break;
             case 'housing':
+                debugLog('Calling calculateHousing with data:', formData);
                 ({ currentResult, newResult } = await calculateHousing(formData));
                 break;
             case 'inflation-impact':
+                debugLog('Calling calculateInflationImpact with data:', formData);
                 ({ currentResult, newResult } = await calculateInflationImpact(formData));
                 break;
             case 'tax-change':
+                debugLog('Calling calculateTaxChange with data:', formData);
                 ({ currentResult, newResult } = await calculateTaxChange(formData));
                 break;
             case 'investment':
+                debugLog('Calling calculateInvestment with data:', formData);
                 ({ currentResult, newResult } = await calculateInvestment(formData));
                 break;
             default:
+                debugError('Unknown scenario type:', currentScenario);
                 throw new Error('Unknown scenario type');
         }
         
+        debugSuccess('Calculation completed successfully!');
+        debugLog('Current result:', currentResult);
+        debugLog('New result:', newResult);
+        
         // Display results
+        debugLog('Displaying results...');
         displayScenarioResults(currentResult, newResult);
         
         // Add to history
+        debugLog('Adding to history...');
         addToScenarioHistory(currentScenario, formData, currentResult, newResult);
         
+        debugSuccess('=== SCENARIO CALCULATION COMPLETED ===');
+        
     } catch (error) {
+        debugError('Error during calculation:', error);
+        debugError('Error stack:', error.stack);
         console.error('Error calculating scenario:', error);
         alert('Hiba történt a számítás során. Kérjük, ellenőrizze a megadott adatokat.');
     }
