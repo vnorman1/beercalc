@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add example calculation on first load
     setTimeout(() => {
         document.getElementById('grossSalary').value = '500000';
-        document.getElementById('children').value = '1';
+        document.getElementById('children').value = '0';
     }, 1000);
 });
 
