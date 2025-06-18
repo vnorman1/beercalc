@@ -419,7 +419,7 @@ function showGameOverMessage() {
 
 // Restart with new salary
 function restartWithNewSalary() {
-    window.location.href = '../index.html';
+    window.location.href = '/beercalc/index.html';
 }
 
 // Start new game
