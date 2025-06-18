@@ -763,13 +763,15 @@ async function calculateHousing(data) {
     const propertyValueAfter = propertyPrice * Math.pow(1 + propertyAppreciation, calculationPeriod);
     const remainingDebt = Math.max(0, loanAmount - (principalPayment * 12 * calculationPeriod));
     const netEquity = propertyValueAfter - remainingDebt;
-    
-    const currentResult = {
+      const currentResult = {
         net: netSalary.net,
         monthlyHousingCost: monthlyRent,
         disposableIncome: netSalary.net - monthlyRent,
         totalCost: totalRentPaid,
-        equity: 0
+        equity: 0,
+        housingType: 'albérlet',
+        monthlyRent: monthlyRent,
+        calculationPeriod: calculationPeriod
     };
     
     const newResult = {
@@ -781,7 +783,12 @@ async function calculateHousing(data) {
         equity: netEquity,
         propertyValue: propertyValueAfter,
         downPayment: downPaymentAmount,
-        monthlyPayment
+        monthlyPayment,
+        housingType: 'lakásvásárlás',
+        loanAmount: loanAmount,
+        interestRate: interestRate,
+        calculationPeriod: calculationPeriod,
+        propertyAppreciation: propertyAppreciation
     };
       return { currentResult, newResult };
 }
@@ -1262,38 +1269,82 @@ function getScenarioChartData(currentResult, newResult, scenario) {
                     }
                 }
             };
+              case 'housing':
+            const calculationPeriod = currentResult.calculationPeriod || 10;
+            const yearLabels = Array.from({length: calculationPeriod + 1}, (_, i) => `${i}. év`);
             
-        case 'housing':
-            const monthlyData = [
-                currentResult.monthlyHousingCost || 0,
-                newResult.monthlyHousingCost || 0
-            ];
-            const equityData = [
-                0,
-                newResult.monthlyEquityGain || 0
-            ];
+            // Calculate cumulative costs over time
+            const rentCumulative = Array.from({length: calculationPeriod + 1}, (_, i) => {
+                return (currentResult.monthlyRent || 0) * 12 * i;
+            });
+            
+            const mortgageCumulative = Array.from({length: calculationPeriod + 1}, (_, i) => {
+                return (newResult.monthlyHousingCost || 0) * 12 * i;
+            });
+            
+            // Calculate net worth (equity - cumulative payments)
+            const rentNetWorth = Array.from({length: calculationPeriod + 1}, (_, i) => {
+                return 0; // No equity buildup with rent
+            });
+            
+            const buyNetWorth = Array.from({length: calculationPeriod + 1}, (_, i) => {
+                if (i === 0) return -(newResult.downPayment || 0);
+                
+                const yearlyPrincipal = (newResult.loanAmount || 0) / (newResult.calculationPeriod || 10);
+                const propertyValue = (newResult.propertyValue || 0) * Math.pow(1 + (newResult.propertyAppreciation || 0.03), i);
+                const remainingDebt = Math.max(0, (newResult.loanAmount || 0) - (yearlyPrincipal * i));
+                const totalPaid = (newResult.monthlyHousingCost || 0) * 12 * i + (newResult.downPayment || 0);
+                
+                return propertyValue - remainingDebt - totalPaid;
+            });
             
             return {
-                type: 'bar',
+                type: 'line',
                 showLegend: true,
                 data: {
-                    labels: chartLabels,
+                    labels: yearLabels,
                     datasets: [
                         {
-                            label: 'Havi lakásköltség',
-                            data: monthlyData,
-                            backgroundColor: ['#EF4444', '#F59E0B'],
-                            borderColor: ['#DC2626', '#D97706'],
-                            borderWidth: 1
+                            label: 'Albérlet - kumulált költség',
+                            data: rentCumulative,
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            fill: false
                         },
                         {
-                            label: 'Havi tőketörlesztés (vagyon növekedés)',
-                            data: equityData,
-                            backgroundColor: ['#10B981', '#10B981'],
-                            borderColor: ['#059669', '#059669'],
-                            borderWidth: 1
+                            label: 'Lakásvásárlás - kumulált költség',
+                            data: mortgageCumulative,
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Lakásvásárlás - nettó vagyon',
+                            data: buyNetWorth,
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            borderDash: [0, 0]
                         }
                     ]
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return formatCurrency(value);
+                            }
+                        },
+                        grid: {
+                            color: function(context) {
+                                return context.tick.value === 0 ? '#000000' : '#E5E7EB';
+                            }
+                        }
+                    }
                 }
             };
             
