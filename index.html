@@ -943,13 +943,13 @@
     </footer>    
     <script src="script.js?v=20250106-2"></script>
     
-    <!-- Scenario Calculator Module -->    <script>
-        // Force cache refresh for scenario calculator
+    <!-- Scenario Calculator Module -->    
+     <script>
         const timestamp = Date.now();
         const script = document.createElement('script');
-        script.src = `szenario.js?v=${timestamp}&fix=nan`;
+        script.src = `szenario.js?v=${timestamp}&fix=validation`;
         script.onload = function() {
-            console.log('✅ Scenario calculator loaded with NaN fix');
+            console.log('✅ Scenario calculator loaded with validation fix');
             if (typeof initializeScenarioCalculator === 'function') {
                 initializeScenarioCalculator();
             }

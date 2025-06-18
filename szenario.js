@@ -5,7 +5,7 @@ let currentScenario = null;
 let currentGrossalary = 0;
 
 // Debug system
-const DEBUG = true; // Set to false to disable debug logs
+const DEBUG = false; // Set to false to disable debug logs
 function debugLog(message, data = null) {
     if (DEBUG) {
         console.log(`🔍 [SCENARIO DEBUG] ${message}`, data ? data : '');
@@ -397,19 +397,27 @@ function addConfigEventListeners(scenarioType) {
 function validateScenarioData(scenario, data) {
     const errors = [];
     
-    // Common validations - current-salary is REQUIRED for ALL scenarios
-    if (!data['current-salary'] || data['current-salary'].trim() === '') {
-        errors.push('A bruttó fizetés megadása kötelező');
-        return errors; // Early return if no salary provided
-    }
+    // Define which scenarios require current-salary
+    const scenariosRequiringSalary = [
+        'salary-increase', 'job-change', 'family-change', 'age-milestone', 
+        'retirement', 'education', 'housing', 'inflation-impact', 'tax-change'
+    ];
     
-    const currentSalary = parseFloat(data['current-salary']);
-    if (isNaN(currentSalary) || currentSalary < 200000) {
-        errors.push('A bruttó fizetés túl alacsony (minimum 200 000 Ft)');
-    }
-    
-    if (currentSalary > 10000000) {
-        errors.push('A bruttó fizetés túl magas (maximum 10 000 000 Ft)');
+    // Only validate current-salary for scenarios that need it
+    if (scenariosRequiringSalary.includes(scenario)) {
+        if (!data['current-salary'] || data['current-salary'].trim() === '') {
+            errors.push('A bruttó fizetés megadása kötelező ehhez a szcenárióhoz');
+            return errors; // Early return if no salary provided
+        }
+        
+        const currentSalary = parseFloat(data['current-salary']);
+        if (isNaN(currentSalary) || currentSalary < 200000) {
+            errors.push('A bruttó fizetés túl alacsony (minimum 200 000 Ft)');
+        }
+        
+        if (currentSalary > 10000000) {
+            errors.push('A bruttó fizetés túl magas (maximum 10 000 000 Ft)');
+        }
     }
     
     // Scenario-specific validations
