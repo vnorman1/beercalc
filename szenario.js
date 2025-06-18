@@ -729,15 +729,17 @@ async function calculateEducation(data) {
 
 // Calculate housing scenario
 async function calculateHousing(data) {
-    const currentSalary = parseFloat(data['current-salary']);
-    const propertyPrice = parseFloat(data['property-price']);
-    const downPaymentPercent = parseFloat(data['down-payment']) / 100;
-    const loanTerm = parseInt(data['loan-term']);
-    const interestRate = parseFloat(data['interest-rate']) / 100;
-    const monthlyRent = parseFloat(data['monthly-rent']);
-    const maintenanceCost = parseFloat(data['maintenance-cost']) || 0;
-    const propertyAppreciation = parseFloat(data['property-appreciation']) / 100 || 0.03;
+    // Enhanced parsing with defaults and validation
+    const currentSalary = parseFloat(data['current-salary']) || 500000;
+    const propertyPrice = parseFloat(data['property-price']) || 35000000;
+    const downPaymentPercent = (parseFloat(data['down-payment']) || 20) / 100;
+    const loanTerm = parseInt(data['loan-term']) || 20;
+    const interestRate = (parseFloat(data['interest-rate']) || 7.5) / 100;
+    const monthlyRent = parseFloat(data['monthly-rent']) || 180000;
+    const maintenanceCost = parseFloat(data['maintenance-cost']) || 50000;
+    const propertyAppreciation = (parseFloat(data['property-appreciation']) || 3) / 100;
     const calculationPeriod = parseInt(data['calculation-period']) || 10;
+
     
     const netSalary = await calculateNetSalary(currentSalary);
     
