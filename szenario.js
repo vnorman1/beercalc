@@ -204,7 +204,7 @@ function formatCurrency(amount) {
 async function loadTaxData() {
     debugLog('Loading tax data...');
     try {
-        const response = await fetch('/beercalc/data/2025.json');
+        const response = await fetch('./beercalc/data/2025.json');
         debugLog('Tax data fetch response status:', response.status);
         
         if (!response.ok) {
@@ -397,12 +397,18 @@ function addConfigEventListeners(scenarioType) {
 function validateScenarioData(scenario, data) {
     const errors = [];
     
-    // Common validations
-    if (data['current-salary'] && parseFloat(data['current-salary']) < 200000) {
+    // Common validations - current-salary is REQUIRED for ALL scenarios
+    if (!data['current-salary'] || data['current-salary'].trim() === '') {
+        errors.push('A bruttó fizetés megadása kötelező');
+        return errors; // Early return if no salary provided
+    }
+    
+    const currentSalary = parseFloat(data['current-salary']);
+    if (isNaN(currentSalary) || currentSalary < 200000) {
         errors.push('A bruttó fizetés túl alacsony (minimum 200 000 Ft)');
     }
     
-    if (data['current-salary'] && parseFloat(data['current-salary']) > 10000000) {
+    if (currentSalary > 10000000) {
         errors.push('A bruttó fizetés túl magas (maximum 10 000 000 Ft)');
     }
     
@@ -1807,11 +1813,30 @@ function addToScenarioHistory(scenarioType, formData, currentResult, newResult) 
 
 // Load scenario history from localStorage
 function loadScenarioHistory() {
-    const saved = localStorage.getItem('scenarioHistory');
-    if (saved) {
-        scenarioHistory = JSON.parse(saved);
-        updateScenarioHistoryDisplay();
+    try {
+        const saved = localStorage.getItem('scenarioHistory');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            // Filter out entries with NaN values
+            scenarioHistory = parsed.filter(item => 
+                item.currentResult && 
+                item.newResult && 
+                !isNaN(item.currentResult.net) && 
+                !isNaN(item.newResult.net) &&
+                !isNaN(item.difference)
+            );
+            
+            // If we filtered out items, save the cleaned version
+            if (scenarioHistory.length !== parsed.length) {
+                debugLog(`Cleaned ${parsed.length - scenarioHistory.length} invalid history entries`);
+                saveScenarioHistory();
+            }
+        }
+    } catch (error) {
+        debugError('Error loading scenario history:', error);
+        scenarioHistory = [];
     }
+    updateScenarioHistoryDisplay();
 }
 
 // Update scenario history display
@@ -1827,7 +1852,16 @@ function updateScenarioHistoryDisplay() {
         return;
     }
     
-    historyDiv.innerHTML = scenarioHistory.map(item => `
+    historyDiv.innerHTML = scenarioHistory.map(item => {
+        // Safe formatting - check for valid numbers
+        const currentNet = (item.currentResult && !isNaN(item.currentResult.net)) ? 
+            formatCurrency(item.currentResult.net) : 'N/A';
+        const newNet = (item.newResult && !isNaN(item.newResult.net)) ? 
+            formatCurrency(item.newResult.net) : 'N/A';
+        const difference = (!isNaN(item.difference)) ? 
+            formatCurrency(item.difference) : 'N/A';
+        
+        return `
         <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start mb-2">
                 <div class="font-medium text-gray-900">${item.scenarioTitle}</div>
@@ -1836,21 +1870,22 @@ function updateScenarioHistoryDisplay() {
             <div class="space-y-1 text-sm">
                 <div class="flex justify-between">
                     <span class="text-gray-600">Előtte:</span>
-                    <span>${formatCurrency(item.currentResult.net)}</span>
+                    <span>${currentNet}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">Utána:</span>
-                    <span>${formatCurrency(item.newResult.net)}</span>
+                    <span>${newNet}</span>
                 </div>
                 <div class="flex justify-between pt-1 border-t border-gray-200">
                     <span class="text-gray-600">Változás:</span>
                     <span class="font-medium ${item.difference >= 0 ? 'text-green-600' : 'text-red-600'}">
-                        ${item.difference >= 0 ? '+' : ''}${formatCurrency(item.difference)}
+                        ${item.difference >= 0 ? '+' : ''}${difference}
                     </span>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Clear scenario history
