@@ -569,24 +569,46 @@ async function calculateScenario() {
 
 // Calculate salary increase scenario
 async function calculateSalaryIncrease(data) {
-    const currentSalary = parseFloat(data['current-salary']);
-    const increaseAmount = parseFloat(data['increase-amount']);
+    debugLog('=== SALARY INCREASE CALCULATION ===');
+    debugLog('Input data:', data);
+    
+    const currentSalary = parseFloat(data['current-salary']) || 0;
+    const increaseAmount = parseFloat(data['increase-amount']) || 0;
     const increaseType = data['increase-type'];
     const children = parseInt(data['children-count']) || 0;
     const under25 = data['under-25'] || false;
     const under30Mother = data['under-30-mother'] || false;
     
+    debugLog('Parsed values:', {
+        currentSalary, increaseAmount, increaseType, children, under25, under30Mother
+    });
+    
+    if (currentSalary === 0) {
+        debugError('Current salary is 0 or invalid!');
+        throw new Error('Invalid current salary');
+    }
+    
+    if (increaseAmount === 0) {
+        debugError('Increase amount is 0 or invalid!');
+        throw new Error('Invalid increase amount');
+    }
+    
     let newSalary;
     if (increaseType === 'percentage') {
         newSalary = currentSalary * (1 + increaseAmount / 100);
+        debugLog(`Percentage increase: ${currentSalary} * (1 + ${increaseAmount}/100) = ${newSalary}`);
     } else {
         newSalary = currentSalary + increaseAmount;
+        debugLog(`Fixed increase: ${currentSalary} + ${increaseAmount} = ${newSalary}`);
     }
     
     const options = { children, under25, under30Mother };
+    debugLog('Calculating net salaries with options:', options);
+    
     const currentResult = await calculateNetSalary(currentSalary, options);
     const newResult = await calculateNetSalary(newSalary, options);
     
+    debugSuccess('Salary increase calculation completed');
     return { currentResult, newResult };
 }
 
@@ -1047,12 +1069,29 @@ async function calculateInvestment(data) {
 
 // Display scenario results
 function displayScenarioResults(currentResult, newResult) {
+    debugLog('=== DISPLAYING SCENARIO RESULTS ===');
+    debugLog('Current result:', currentResult);
+    debugLog('New result:', newResult);
+    
     const resultsDiv = document.getElementById('scenario-results');
     const difference = newResult.net - currentResult.net;
     const percentChange = ((difference / currentResult.net) * 100);
     
+    debugLog('Calculated values:', { difference, percentChange });
+    
+    // Check for NaN values
+    if (isNaN(currentResult.net) || isNaN(newResult.net)) {
+        debugError('NaN detected in results!', { 
+            currentNet: currentResult.net, 
+            newNet: newResult.net 
+        });
+        alert('Hiba: Érvénytelen számítási eredmény (NaN). Kérjük ellenőrizze az adatokat!');
+        return;
+    }
+    
     // Get scenario-specific labels
     const labels = getScenarioLabels(currentScenario);
+    debugLog('Scenario labels:', labels);
     
     // Update labels
     document.querySelector('#scenario-results .border-gray-400 .text-gray-600').textContent = labels.current;
@@ -1061,6 +1100,8 @@ function displayScenarioResults(currentResult, newResult) {
     // Display appropriate values based on scenario
     const currentValue = getDisplayValue(currentResult, currentScenario, 'current');
     const newValue = getDisplayValue(newResult, currentScenario, 'new');
+    
+    debugLog('Display values:', { currentValue, newValue });
     
     document.getElementById('current-result').textContent = currentValue;
     document.getElementById('new-result').textContent = newValue;
