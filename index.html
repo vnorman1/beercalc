@@ -887,15 +887,6 @@
     </div>
 </section>
 
-<script>
-    // Initialize scenario calculator when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof initializeScenarioCalculator === 'function') {
-            initializeScenarioCalculator();
-        }
-    });
-</script>
-
     </main>
     
     <!-- Footer -->
@@ -953,6 +944,18 @@
     <script src="script.js?v=20250106-2"></script>
     
     <!-- Scenario Calculator Module -->
-    <script src="szenario.js?v=20250106-5"></script>
+    <script>
+        // Force cache refresh for scenario calculator
+        const timestamp = new Date().getTime();
+        const script = document.createElement('script');
+        script.src = `szenario.js?v=${timestamp}`;
+        script.onload = function() {
+            console.log('✅ Scenario calculator loaded with fresh cache');
+            if (typeof initializeScenarioCalculator === 'function') {
+                initializeScenarioCalculator();
+            }
+        };
+        document.head.appendChild(script);
+    </script>
 </body>
 </html>

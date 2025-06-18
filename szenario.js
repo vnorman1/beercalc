@@ -186,6 +186,12 @@ const scenarioConfigs = {
 
 // Format currency
 function formatCurrency(amount) {
+    // Handle NaN, null, undefined values
+    if (isNaN(amount) || amount === null || amount === undefined) {
+        debugError('formatCurrency received invalid value:', amount);
+        return 'Hiba (NaN)';
+    }
+    
     return new Intl.NumberFormat('hu-HU', {
         style: 'currency',
         currency: 'HUF',
