@@ -58,12 +58,17 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-// Calculate salary
+// Calculate salary according to 2025 Hungarian tax laws
 async function calculateSalary() {
     const grossSalary = parseFloat(document.getElementById('grossSalary').value);
-    const children = parseInt(document.getElementById('children').value);
+    const children = parseInt(document.getElementById('children').value) || 0;
     const maritalStatus = document.getElementById('maritalStatus').value;
     const under25 = document.getElementById('under25').checked;
+    const under30Mother = document.getElementById('under30Mother').checked;
+    const fourOrMoreChildren = document.getElementById('fourOrMoreChildren').checked;
+    const firstMarriage = document.getElementById('firstMarriage').checked;
+    const personalAllowance = document.getElementById('personalAllowance').checked;
+    const studentStatus = document.getElementById('studentStatus').checked;
     
     if (!grossSalary || grossSalary <= 0) {
         alert('Kérjük, adjon meg egy érvényes bruttó fizetést!');
@@ -73,38 +78,112 @@ async function calculateSalary() {
     // Load tax data from JSON
     const taxData = await loadTaxData();
     
-    // Tax calculations using loaded data
-    const socialSecurityRate = taxData.taxRates.socialSecurityEmployee;
-    const unemploymentRate = taxData.taxRates.unemploymentEmployee;
-    const pensionRate = taxData.taxRates.pensionEmployee;
-    const personalTaxRate = taxData.taxRates.personalIncomeTax;
-    
-    // Calculate social security contributions
-    const socialSecurity = grossSalary * socialSecurityRate;
-    const unemployment = grossSalary * unemploymentRate;
-    const pension = grossSalary * pensionRate;
-    
-    // Taxable income after social contributions
-    const taxableIncome = grossSalary - socialSecurity - unemployment - pension;
-    
-    // Personal income tax calculation
-    let personalTax = 0;
-    if (!under25) {
-        personalTax = taxableIncome * personalTaxRate;
+    // Step 1: Calculate TB (Social Security) contributions - 18.5% from gross salary (unless student status)
+    let tbContribution = 0;
+    if (!studentStatus) {
+        tbContribution = grossSalary * (taxData.taxRates.socialSecurityEmployee || 0.185);
     }
     
-    // Family tax allowance using loaded data
-    let familyAllowance = 0;
-    if (children >= 1) familyAllowance += taxData.familyAllowances.oneChild;
-    if (children >= 2) familyAllowance += taxData.familyAllowances.twoChildren;
-    if (children >= 3) familyAllowance += taxData.familyAllowances.threeOrMoreChildren;
+    // Step 2: Calculate SZJA base (gross salary for SZJA calculation)
+    const szjaBase = grossSalary;
     
-    personalTax = Math.max(0, personalTax - familyAllowance);
+    // Step 3: Apply personal allowance (személyi kedvezmény)
+    let personalAllowanceAmount = 0;
+    if (personalAllowance) {
+        // Minimálbér egyharmada
+        personalAllowanceAmount = Math.floor((taxData.minimumWage || 290800) / 3);
+    }
     
-    // Calculate net salary
-    const totalDeductions = socialSecurity + unemployment + pension + personalTax;
+    // Step 4: Apply family tax base reductions (adóalap-kedvezmény)
+    let taxBaseReduction = personalAllowanceAmount;
+    if (children >= 1) {
+        const oneChild = taxData.familyAllowances?.taxBaseReduction?.oneChild || 66670;
+        const twoChildren = taxData.familyAllowances?.taxBaseReduction?.twoChildren || 133330;
+        const threeOrMoreChildren = taxData.familyAllowances?.taxBaseReduction?.threeOrMoreChildren || 220000;
+        
+        if (children === 1) {
+            taxBaseReduction += oneChild;
+        } else if (children === 2) {
+            taxBaseReduction += twoChildren * 2; // per child
+        } else if (children >= 3) {
+            taxBaseReduction += threeOrMoreChildren * children;
+        }
+    }
+    
+    // Step 5: First marriage allowance (adóalap-kedvezmény)
+    if (firstMarriage) {
+        const firstMarriageBaseReduction = taxData.specialExemptions?.firstMarriage?.monthlyTaxBaseReduction || 33335;
+        taxBaseReduction += firstMarriageBaseReduction;
+    }
+    
+    // Step 6: Calculate reduced tax base
+    const reducedTaxBase = Math.max(0, szjaBase - taxBaseReduction);
+    
+    // Step 7: Calculate SZJA with special exemptions
+    let personalTax = 0;
+    const personalTaxRate = taxData.taxRates.personalIncomeTax || 0.15;
+    
+    if (fourOrMoreChildren) {
+        // NÉTAK - 100% SZJA mentesség korlát nélkül
+        personalTax = 0;
+    } else if (under25 || under30Mother) {
+        // 25 év alatti vagy 30 év alatti anya SZJA mentesség - korláttal
+        const exemptionLimit = taxData.taxRates.under25ExemptionLimit || 576000;
+        if (reducedTaxBase <= exemptionLimit) {
+            personalTax = 0; // Complete exemption
+        } else {
+            // Only the amount above the limit is taxable
+            const taxableAmount = Math.max(0, reducedTaxBase - exemptionLimit);
+            personalTax = taxableAmount * personalTaxRate;
+        }
+    } else {
+        // Standard SZJA calculation - 15% on reduced tax base
+        personalTax = reducedTaxBase * personalTaxRate;
+    }
+    
+    // Step 8: Apply remaining family tax credit if SZJA is not sufficient
+    let finalTbContribution = tbContribution;
+    let totalFamilyTaxCredit = 0;
+    
+    // Family tax credit calculation
+    if (children >= 1) {
+        const oneChildCredit = taxData.familyAllowances?.taxReduction?.oneChild || 10000;
+        const twoChildrenCredit = taxData.familyAllowances?.taxReduction?.twoChildren || 20000;
+        const threeOrMoreCredit = taxData.familyAllowances?.taxReduction?.threeOrMoreChildren || 33000;
+        
+        if (children === 1) {
+            totalFamilyTaxCredit = oneChildCredit;
+        } else if (children === 2) {
+            totalFamilyTaxCredit = twoChildrenCredit;
+        } else if (children >= 3) {
+            totalFamilyTaxCredit = threeOrMoreCredit * children;
+        }
+    }
+    
+    // First marriage tax credit
+    if (firstMarriage) {
+        const firstMarriageTaxCredit = taxData.specialExemptions?.firstMarriage?.monthlyTaxReduction || 5000;
+        totalFamilyTaxCredit += firstMarriageTaxCredit;
+    }
+    
+    // Apply tax credits
+    if (totalFamilyTaxCredit > personalTax) {
+        const remainingCredit = totalFamilyTaxCredit - personalTax;
+        personalTax = 0;
+        
+        // Apply remaining credit to TB contribution
+        finalTbContribution = Math.max(0, tbContribution - remainingCredit);
+    } else {
+        personalTax = Math.max(0, personalTax - totalFamilyTaxCredit);
+    }
+    
+    // Step 9: Calculate final amounts
+    const totalDeductions = finalTbContribution + personalTax;
     const netSalary = grossSalary - totalDeductions;
     const yearlyNet = netSalary * 12;
+    
+    // Calculate employer cost (including Szocho)
+    const employerCost = grossSalary + (grossSalary * (taxData.taxRates.socialContributionTax || 0.13));
     
     // Save net salary to localStorage for blackjack game
     localStorage.setItem('netSalary', Math.round(netSalary));
@@ -129,19 +208,18 @@ async function calculateSalary() {
     await typeWriter(document.getElementById('netResult'), formatCurrency(netSalary), 30);
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    await typeWriter(document.getElementById('yearlyResult'), formatCurrency(yearlyNet), 30);
-    
-    // Update breakdown
+    await typeWriter(document.getElementById('yearlyResult'), formatCurrency(yearlyNet), 30);    // Update breakdown - Updated for 2025 tax structure
     document.getElementById('taxAmount').textContent = formatCurrency(personalTax);
-    document.getElementById('socialAmount').textContent = formatCurrency(socialSecurity + pension);
-    document.getElementById('unemploymentAmount').textContent = formatCurrency(unemployment);
+    document.getElementById('socialAmount').textContent = formatCurrency(finalTbContribution);
+    document.getElementById('familyBenefit').textContent = formatCurrency(totalFamilyTaxCredit);
     document.getElementById('finalNet').textContent = formatCurrency(netSalary);
     
     breakdownDiv.style.opacity = '1';
     breakdownDiv.classList.add('slide-up');
     
-    // Create/update chart
-    createSalaryChart(netSalary, personalTax, socialSecurity + pension, unemployment);
+    // Create/update chart - Updated for simplified structure
+    // Pass family benefits as positive value for display
+    createSalaryChart(netSalary, personalTax, finalTbContribution, totalFamilyTaxCredit);
     
     // Update salary insights
     updateSalaryInsights(grossSalary, netSalary, totalDeductions);
@@ -149,10 +227,38 @@ async function calculateSalary() {
     // Update budget breakdown
     updateBudgetBreakdown(netSalary);
       // Update market comparison
-    await updateMarketComparison(grossSalary, netSalary);
+    await updateMarketComparison(grossSalary, netSalary);    // Add to calculation history
+    addToHistory(grossSalary, netSalary, children, under25, under30Mother, fourOrMoreChildren, firstMarriage, personalAllowance, studentStatus);
     
-    // Add to calculation history
-    addToHistory(grossSalary, netSalary, children, under25);
+    // Debug information display (optional - can be hidden in production)
+    const debugInfo = document.getElementById('debugInfo');
+    if (debugInfo) {
+        let debugText = `
+            <div class="text-xs text-gray-600 mt-4 p-3 bg-gray-100 rounded">
+                <strong>Számítási részletek:</strong><br>
+                Bruttó bér: ${formatCurrency(grossSalary)}<br>
+                TB járulék: ${formatCurrency(finalTbContribution)} (18.5%)<br>
+                SZJA alap: ${formatCurrency(reducedTaxBase)}<br>
+                SZJA: ${formatCurrency(personalTax)} (15%)<br>
+                Családi kedvezmény: ${formatCurrency(totalFamilyTaxCredit)}<br>
+                Munkáltató költség: ${formatCurrency(employerCost)}<br>
+        `;
+        
+        if (under25 || under30Mother) {
+            debugText += `25/30 év alatti mentesség alkalmazva (limit: ${formatCurrency(taxData.taxRates.under25ExemptionLimit || 576000)})<br>`;
+        }
+        if (fourOrMoreChildren) {
+            debugText += `NÉTAK alkalmazva (teljes SZJA mentesség)<br>`;
+        }        if (personalAllowance) {
+            debugText += `Személyi kedvezmény: ${formatCurrency(personalAllowanceAmount)}<br>`;
+        }
+        if (studentStatus) {
+            debugText += `Tanulói jogviszony - TB járulék mentesség alkalmazva<br>`;
+        }
+        debugText += `</div>`;
+        debugInfo.innerHTML = debugText;
+        debugInfo.style.opacity = '1';
+    }
 }
 
 // Create salary breakdown chart
@@ -162,25 +268,24 @@ function createSalaryChart(netSalary, tax, social, unemployment) {
     if (chart) {
         chart.destroy();
     }
-    
-    chart = new Chart(ctx, {
+      chart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Nettó fizetés', 'Személyi jövedelemadó', 'TB járulék', 'Munkanélküli járulék'],
+            labels: ['Nettó fizetés', 'Személyi jövedelemadó (SZJA)', 'TB járulék (18,5%)', 'Családi kedvezmény'],
             datasets: [{
-                data: [netSalary, tax, social, unemployment],
+                data: [netSalary, tax, social, Math.abs(unemployment)], // unemployment parameter now represents family benefits
                 backgroundColor: [
                     '#10B981', // Green for net salary
                     '#EF4444', // Red for tax
                     '#F59E0B', // Orange for social security
-                    '#6B7280'  // Gray for unemployment
+                    '#22C55E'  // Green for family benefits
                 ],
                 borderWidth: 3,
                 borderColor: '#ffffff',
                 hoverBorderWidth: 4,
                 hoverBorderColor: '#1f2937'
             }]
-        },        options: {
+        },options: {
             responsive: true,
             maintainAspectRatio: false,
             layout: {
@@ -322,14 +427,24 @@ async function updateMarketComparison(grossSalary, netSalary) {
 }
 
 // Add calculation to history
-function addToHistory(grossSalary, netSalary, children, under25) {
+function addToHistory(grossSalary, netSalary, children, under25, under30Mother, fourOrMoreChildren, firstMarriage, personalAllowance, studentStatus) {
     const timestamp = new Date().toLocaleString('hu-HU');
+    
+    // Create benefit description
+    const benefits = [];
+    if (under25) benefits.push('25 év alatt');
+    if (under30Mother) benefits.push('30 év alatti anya');
+    if (fourOrMoreChildren) benefits.push('NÉTAK');
+    if (firstMarriage) benefits.push('Első házasság');
+    if (personalAllowance) benefits.push('Személyi kedvezmény');
+    if (studentStatus) benefits.push('Tanulói jogviszony');
+    
     const calculation = {
         timestamp,
         grossSalary,
         netSalary,
         children,
-        under25
+        benefits: benefits.join(', ') || 'Nincs'
     };
     
     calculationHistory.unshift(calculation);
@@ -352,15 +467,16 @@ function updateHistoryDisplay() {
         `;
         return;
     }
-    
-    historyDiv.innerHTML = calculationHistory.map(calc => `
+      historyDiv.innerHTML = calculationHistory.map(calc => `
         <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 hover:border-gray-500 transition-colors">
             <div class="flex justify-between items-start">
                 <div>
                     <div class="font-medium text-gray-900">${formatCurrency(calc.grossSalary)} → ${formatCurrency(calc.netSalary)}</div>
                     <div class="text-xs text-gray-500">
-                        ${calc.children > 0 ? `${calc.children} gyermek` : 'Nincs gyermek'} 
-                        ${calc.under25 ? '• 25 év alatt' : ''}
+                        ${calc.children > 0 ? `${calc.children} gyermek` : 'Nincs gyermek'}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        Kedvezmények: ${calc.benefits}
                     </div>
                 </div>
                 <div class="text-xs text-gray-400">${calc.timestamp}</div>
@@ -387,30 +503,39 @@ function calculateRaise() {
     
     const newGrossAmount = currentGross * (1 + raisePercentage / 100);
     
-    // Calculate new net salary (simplified calculation)
-    const socialSecurityRate = 0.185;
-    const unemploymentRate = 0.015;
-    const pensionRate = 0.10;
-    const taxRate = 0.15;
+    // Calculate new net salary using 2025 tax structure
+    const tbRate = 0.185; // 18.5% TB járulék
+    const taxRate = 0.15; // 15% SZJA
     
-    const newSocialSecurity = newGrossAmount * socialSecurityRate;
-    const newUnemployment = newGrossAmount * unemploymentRate;
-    const newPension = newGrossAmount * pensionRate;
-    const newTaxableIncome = newGrossAmount - newSocialSecurity - newUnemployment - newPension;
-    
+    const newTbContribution = newGrossAmount * tbRate;
     const under25 = document.getElementById('under25').checked;
-    const newPersonalTax = under25 ? 0 : newTaxableIncome * taxRate;
     
-    const newNetAmount = newGrossAmount - newSocialSecurity - newUnemployment - newPension - newPersonalTax;
+    let newPersonalTax = 0;
+    if (!under25) {
+        newPersonalTax = newGrossAmount * taxRate;
+    } else {
+        // 25 év alatti mentesség limit ellenőrzése
+        const exemptionLimit = 576000;
+        if (newGrossAmount > exemptionLimit) {
+            newPersonalTax = (newGrossAmount - exemptionLimit) * taxRate;
+        }
+    }
     
-    // Current net (simplified)
-    const currentSocialSecurity = currentGross * socialSecurityRate;
-    const currentUnemployment = currentGross * unemploymentRate;
-    const currentPension = currentGross * pensionRate;
-    const currentTaxableIncome = currentGross - currentSocialSecurity - currentUnemployment - currentPension;
-    const currentPersonalTax = under25 ? 0 : currentTaxableIncome * taxRate;
-    const currentNetAmount = currentGross - currentSocialSecurity - currentUnemployment - currentPension - currentPersonalTax;
+    const newNetAmount = newGrossAmount - newTbContribution - newPersonalTax;
     
+    // Current net calculation
+    const currentTbContribution = currentGross * tbRate;
+    let currentPersonalTax = 0;
+    if (!under25) {
+        currentPersonalTax = currentGross * taxRate;
+    } else {
+        const exemptionLimit = 576000;
+        if (currentGross > exemptionLimit) {
+            currentPersonalTax = (currentGross - exemptionLimit) * taxRate;
+        }
+    }
+    
+    const currentNetAmount = currentGross - currentTbContribution - currentPersonalTax;
     const netDifference = newNetAmount - currentNetAmount;
     
     document.getElementById('newGrossSalary').textContent = formatCurrency(newGrossAmount);
@@ -431,21 +556,15 @@ function compareSalaries() {
         alert('Kérjük, adja meg mindkét fizetést!');
         return;
     }
-    
-    // Simplified net calculation for comparison
+      // Simplified net calculation for comparison using 2025 tax structure
     const calculateNet = (gross) => {
-        const socialSecurityRate = 0.185;
-        const unemploymentRate = 0.015;
-        const pensionRate = 0.10;
-        const taxRate = 0.15;
+        const tbRate = 0.185; // 18.5% TB járulék  
+        const taxRate = 0.15; // 15% SZJA
         
-        const socialSecurity = gross * socialSecurityRate;
-        const unemployment = gross * unemploymentRate;
-        const pension = gross * pensionRate;
-        const taxableIncome = gross - socialSecurity - unemployment - pension;
-        const personalTax = taxableIncome * taxRate;
+        const tbContribution = gross * tbRate;
+        const personalTax = gross * taxRate; // Simplified - no exemptions
         
-        return gross - socialSecurity - unemployment - pension - personalTax;
+        return gross - tbContribution - personalTax;
     };
     
     const net1 = calculateNet(gross1);
@@ -790,9 +909,8 @@ function showBlackjackLink(netSalary) {
             </h2>
             <p class="text-red-100 text-lg mb-6">
                 Kockáztassa a ${formatCurrency(netSalary)} nettó fizetését!
-            </p>
-            <div class="space-y-4">
-                <a href="/beercalc/blackjack.html" 
+            </p>            <div class="space-y-4">
+                <a href="./beercalc/blackjack.html" 
                    class="inline-block bg-white text-red-600 py-4 px-8 font-bold text-xl rounded-lg hover:bg-red-50 transition-colors duration-200 uppercase tracking-wide shadow-lg">
                     🃏 Játék indítása
                 </a>

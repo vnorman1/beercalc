@@ -2,49 +2,64 @@
   "taxRates": {
     "personalIncomeTax": 0.15,
     "socialSecurityEmployee": 0.185,
-    "unemploymentEmployee": 0.015,
-    "pensionEmployee": 0.10,
-    "under25Exemption": true
+    "socialContributionTax": 0.13,
+    "under25ExemptionLimit": 576000
   },
   "familyAllowances": {
-    "oneChild": 10000,
-    "twoChildren": 20000,
-    "threeOrMoreChildren": 33000
+    "taxBaseReduction": {
+      "oneChild": 66670,
+      "twoChildren": 133330,
+      "threeOrMoreChildren": 220000
+    },
+    "taxReduction": {
+      "oneChild": 10000,
+      "twoChildren": 20000,
+      "threeOrMoreChildren": 33000
+    }
+  },
+  "specialExemptions": {
+    "under25": {
+      "description": "100% SZJA mentesség 25 év alatt",
+      "limit": 576000,
+      "rate": 0
+    },
+    "under30Mother": {
+      "description": "30 év alatti anyák SZJA mentessége",
+      "limit": 576000,
+      "rate": 0
+    },
+    "fourOrMoreChildren": {
+      "description": "Négy vagy több gyermeket nevelő anyák SZJA mentessége",
+      "rate": 0,
+      "unlimited": true    },
+    "firstMarriage": {
+      "description": "Első házasok kedvezménye",
+      "monthlyTaxReduction": 5000,
+      "monthlyTaxBaseReduction": 33335,
+      "durationMonths": 24
+    },
+    "studentStatus": {
+      "description": "Tanulói jogviszony TB járulék mentesség",
+      "socialSecurityExemption": true,
+      "personalIncomeTaxApplies": true
+    }
   },
   "minimumWage": 290800,
   "averageWage": 708300,
   "currency": "HUF",
   "lastUpdated": "2025-06-18",
   "calculatorInfo": {
-    "version": "1.0.0",
-    "description": "Professional Hungarian Salary Calculator",
+    "version": "2.0.0",
+    "description": "Professional Hungarian Salary Calculator - Updated for 2025 tax laws",
     "features": [
+      "2025 tax law compliance",
+      "Simplified tax structure (TB 18.5%, SZJA 15%)",
+      "25 year old exemption with limit",
+      "Family tax base reduction system",
       "Real-time typewriter animation",
       "Interactive chart visualization", 
-      "Mobile responsive design",
-      "NY Times inspired styling",
-      "Detailed tax breakdown",
-      "Family allowance calculations"
+      "Mobile responsive design"
     ]
-  },
-  "taxBrackets": [
-    {
-      "threshold": 0,
-      "rate": 0.15,
-      "description": "Standard personal income tax rate"
-    }
-  ],
-  "socialBenefits": {
-    "familyTaxAllowance": {
-      "1": 10000,
-      "2": 20000, 
-      "3": 33000,
-      "4": 33000
-    },
-    "under25Exemption": {
-      "personalIncomeTax": 0,
-      "description": "Complete exemption from personal income tax for under 25"
-    }
   },
   "disclaimer": "Az adatok tájékoztató jellegűek. A pontos számításokért forduljon szakértőhöz.",
   "sources": [

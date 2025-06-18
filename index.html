@@ -162,14 +162,52 @@
                                 <option value="single">Egyedülálló</option>
                                 <option value="married">Házas</option>
                             </select>
-                        </div>
+                        </div>                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="under25" 
+                                       class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                                <label for="under25" class="text-sm font-medium text-gray-700">
+                                    25 év alatti vagyok
+                                </label>
+                            </div>
 
-                        <div class="flex items-center space-x-3">
-                            <input type="checkbox" id="under25" 
-                                   class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
-                            <label for="under25" class="text-sm font-medium text-gray-700">
-                                25 év alatti vagyok
-                            </label>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="under30Mother" 
+                                       class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                                <label for="under30Mother" class="text-sm font-medium text-gray-700">
+                                    30 év alatti anya vagyok
+                                </label>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="fourOrMoreChildren" 
+                                       class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                                <label for="fourOrMoreChildren" class="text-sm font-medium text-gray-700">
+                                    4+ gyermeket nevelő anya vagyok (NÉTAK)
+                                </label>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="firstMarriage" 
+                                       class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                                <label for="firstMarriage" class="text-sm font-medium text-gray-700">
+                                    Első házasság kedvezménye
+                                </label>
+                            </div>                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="personalAllowance" 
+                                       class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                                <label for="personalAllowance" class="text-sm font-medium text-gray-700">
+                                    Személyi kedvezmény (fogyatékosság/betegség)
+                                </label>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="studentStatus" 
+                                       class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                                <label for="studentStatus" class="text-sm font-medium text-gray-700">
+                                    Tanulói jogviszony (TB járulék mentesség)
+                                </label>
+                            </div>
                         </div>
 
                         <button onclick="calculateSalary()" 
@@ -235,25 +273,26 @@
                         <h3 class="header-font text-xl font-bold text-gray-900 mb-4">
                             Részletes bontás
                         </h3>
-                        
-                        <div id="breakdown" class="space-y-3 opacity-0">
+                          <div id="breakdown" class="space-y-3 opacity-0">
                             <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                                <span class="text-gray-700 font-medium">Személyi jövedelemadó:</span>
+                                <span class="text-gray-700 font-medium">Személyi jövedelemadó (SZJA):</span>
                                 <span id="taxAmount" class="font-bold text-red-600">-</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                                <span class="text-gray-700 font-medium">TB járulék:</span>
+                                <span class="text-gray-700 font-medium">TB járulék (18,5%):</span>
                                 <span id="socialAmount" class="font-bold text-yellow-600">-</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                                <span class="text-gray-700 font-medium">Munkanélküli járulék:</span>
-                                <span id="unemploymentAmount" class="font-bold text-gray-600">-</span>
-                            </div>
-                            <div class="flex justify-between items-center py-3 border-t-2 border-gray-900">
+                                <span class="text-gray-700 font-medium">Családi kedvezmény:</span>
+                                <span id="familyBenefit" class="font-bold text-green-600">-</span>
+                            </div>                            <div class="flex justify-between items-center py-3 border-t-2 border-gray-900">
                                 <span class="text-gray-900 font-bold text-lg">Nettó fizetés:</span>
                                 <span id="finalNet" class="font-bold text-green-600 text-lg result-number">-</span>
                             </div>
                         </div>
+                        
+                        <!-- Debug Information (can be hidden) -->
+                        <div id="debugInfo" class="mt-4 opacity-0"></div>
                     </div>
                 </div>
             </div>
@@ -580,6 +619,283 @@
                 </div>
             </div>
         </section>
+        <!-- Scenario Calculator Section -->
+<section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+    <div class="border-pattern p-8">
+        <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+            Szcenárió kalkulátor
+        </h2>
+        <p class="text-gray-600 text-center mb-8 text-lg">
+            Fedezze fel, hogyan változna fizetése különböző élethelyzetekben
+        </p>
+        
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Scenario Selection -->
+            <div class="lg:col-span-1">
+                <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                    Válasszon szcenáriót
+                </h3>
+                  <div class="space-y-4">
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="salary-increase">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Fizetésemelés</div>
+                                <div class="text-sm text-gray-500">Emelés hatása nettó bérre</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="job-change">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6l-8 8-8-8V6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Munkahelyváltás</div>
+                                <div class="text-sm text-gray-500">Új állás összehasonlítása</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="family-change">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Családi változás</div>
+                                <div class="text-sm text-gray-500">Házasság, gyerek hatása</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="age-milestone">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Életkori mérföldkő</div>
+                                <div class="text-sm text-gray-500">25, 30 év betöltése</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="retirement">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Nyugdíjtervezés</div>
+                                <div class="text-sm text-gray-500">Várható nyugdíj számítása</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="education">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Továbbtanulás</div>
+                                <div class="text-sm text-gray-500">Képzés megtérülése</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="housing">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Lakáshitel vs. Albérlet</div>
+                                <div class="text-sm text-gray-500">Lakhatási költségek</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="inflation-impact">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Infláció hatása</div>
+                                <div class="text-sm text-gray-500">Vásárlóerő változása</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="tax-change">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Adóváltozás</div>
+                                <div class="text-sm text-gray-500">Adóemelés/csökkentés</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenario-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors" 
+                         data-scenario="investment">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">Befektetés</div>
+                                <div class="text-sm text-gray-500">Hosszú távú megtakarítás</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario Configuration -->
+            <div class="lg:col-span-1">
+                <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                    Paraméterek
+                </h3>
+                
+                <div id="scenario-config" class="space-y-4">
+                    <div class="text-gray-500 text-center py-8 italic">
+                        Válasszon egy szcenáriót a beállításokhoz
+                    </div>
+                </div>
+                
+                <button id="calculate-scenario" 
+                        class="w-full bg-blue-600 text-white py-3 px-6 font-semibold hover:bg-blue-700 transition-colors duration-200 uppercase tracking-wide mt-6 opacity-50 cursor-not-allowed"
+                        disabled>
+                    Szcenárió számítása
+                </button>
+            </div>
+            
+            <!-- Results -->
+            <div class="lg:col-span-1">
+                <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                    Eredmények
+                </h3>
+                
+                <div id="scenario-results" class="space-y-4 opacity-0">
+                    <!-- Current situation -->
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-gray-400">
+                        <div class="text-sm font-medium text-gray-600 mb-1">Jelenlegi helyzet</div>
+                        <div class="font-bold text-gray-900" id="current-result">-</div>
+                    </div>
+                    
+                    <!-- New situation -->
+                    <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                        <div class="text-sm font-medium text-blue-600 mb-1">Új helyzet</div>
+                        <div class="font-bold text-blue-900" id="new-result">-</div>
+                    </div>
+                    
+                    <!-- Difference -->
+                    <div class="p-4 rounded-lg border-l-4" id="difference-card">
+                        <div class="text-sm font-medium mb-1" id="difference-label">Változás</div>
+                        <div class="font-bold text-lg" id="difference-result">-</div>
+                        <div class="text-xs mt-1" id="difference-percentage">-</div>
+                    </div>
+                    
+                    <!-- Impact breakdown -->
+                    <div class="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                        <div class="text-sm font-medium text-yellow-600 mb-2">Éves hatás</div>
+                        <div class="space-y-1 text-sm">
+                            <div class="flex justify-between">
+                                <span>Havi különbség:</span>
+                                <span class="font-medium" id="monthly-impact">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Éves különbség:</span>
+                                <span class="font-medium" id="yearly-impact">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Comparison Chart -->
+                <div class="mt-6">
+                    <div class="chart-wrapper relative w-full h-48 opacity-0" id="scenario-chart-container">
+                        <canvas id="scenarioChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Action recommendations -->
+                <div id="scenario-recommendations" class="mt-6 p-4 bg-green-50 rounded-lg border-l-4 border-green-500 opacity-0">
+                    <div class="text-sm font-medium text-green-600 mb-2">💡 Javaslatok</div>
+                    <div class="text-sm text-green-700" id="recommendations-text">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scenario History -->
+        <div class="mt-12 pt-8 border-t border-gray-200">
+            <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                Számítások története
+            </h3>
+            
+            <div id="scenario-history" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="text-gray-500 text-center py-8 italic col-span-full">
+                    Még nincsenek korábbi szcenárió számítások
+                </div>
+            </div>
+            
+            <div class="text-center mt-6">
+                <button onclick="clearScenarioHistory()" 
+                        class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                    Előzmények törlése
+                </button>
+            </div>        </div>
+    </div>
+</section>
+
+<!-- Scenario Calculator Script -->
+<script src="0scenario/szenario.js"></script>
+<script>
+    // Initialize scenario calculator when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof initializeScenarioCalculator === 'function') {
+            initializeScenarioCalculator();
+        }
+    });
+</script>
+
     </main>
     
     <!-- Footer -->
@@ -600,7 +916,7 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Kalkulátor teteje</a></li>
                         <li><a href="#marketComparison" class="text-gray-400 hover:text-white transition-colors duration-200">Piaci összehasonlítás</a></li>
-                        <li><a href="/beercalc/blackjack.html" class="text-gray-400 hover:text-white transition-colors duration-200">Blackjack Játék</a></li>
+                        <li><a href="./beercalc/blackjack.html" class="text-gray-400 hover:text-white transition-colors duration-200">Blackjack Játék</a></li>
                     </ul>
                 </div>
                 
