@@ -21,8 +21,8 @@ async function loadTaxData() {
                 twoChildren: 20000,
                 threeOrMoreChildren: 33000
             },
-            minimumWage: 266800,
-            averageWage: 573300
+            minimumWage: 290800,
+            averageWage: 708300
         };
     }
 }
@@ -70,10 +70,14 @@ async function calculateSalary() {
         return;
     }
     
-    // Tax calculations (2025 Hungarian tax rates)
-    const socialSecurityRate = 0.185; // 18.5%
-    const unemploymentRate = 0.015; // 1.5%
-    const pensionRate = 0.10; // 10%
+    // Load tax data from JSON
+    const taxData = await loadTaxData();
+    
+    // Tax calculations using loaded data
+    const socialSecurityRate = taxData.taxRates.socialSecurityEmployee;
+    const unemploymentRate = taxData.taxRates.unemploymentEmployee;
+    const pensionRate = taxData.taxRates.pensionEmployee;
+    const personalTaxRate = taxData.taxRates.personalIncomeTax;
     
     // Calculate social security contributions
     const socialSecurity = grossSalary * socialSecurityRate;
@@ -86,14 +90,14 @@ async function calculateSalary() {
     // Personal income tax calculation
     let personalTax = 0;
     if (!under25) {
-        personalTax = taxableIncome * 0.15; // 15% personal income tax
+        personalTax = taxableIncome * personalTaxRate;
     }
     
-    // Family tax allowance
+    // Family tax allowance using loaded data
     let familyAllowance = 0;
-    if (children >= 1) familyAllowance += 10000;
-    if (children >= 2) familyAllowance += 20000;
-    if (children >= 3) familyAllowance += 33000;
+    if (children >= 1) familyAllowance += taxData.familyAllowances.oneChild;
+    if (children >= 2) familyAllowance += taxData.familyAllowances.twoChildren;
+    if (children >= 3) familyAllowance += taxData.familyAllowances.threeOrMoreChildren;
     
     personalTax = Math.max(0, personalTax - familyAllowance);
     
@@ -144,9 +148,8 @@ async function calculateSalary() {
     
     // Update budget breakdown
     updateBudgetBreakdown(netSalary);
-    
-    // Update market comparison
-    updateMarketComparison(grossSalary, netSalary);
+      // Update market comparison
+    await updateMarketComparison(grossSalary, netSalary);
     
     // Add to calculation history
     addToHistory(grossSalary, netSalary, children, under25);
@@ -289,9 +292,17 @@ function updateBudgetBreakdown(netSalary) {
 }
 
 // Update market comparison
-function updateMarketComparison(grossSalary, netSalary) {
-    const averageWage = 573300;
-    const minimumWage = 266800;
+// Update market comparison
+async function updateMarketComparison(grossSalary, netSalary) {
+    // Load tax data to get current minimum and average wages
+    const taxData = await loadTaxData();
+    
+    const averageWage = taxData.averageWage;
+    const minimumWage = taxData.minimumWage;
+    
+    // Update the displayed wage values in HTML
+    document.getElementById('averageWage').textContent = formatCurrency(averageWage);
+    document.getElementById('minimumWage').textContent = formatCurrency(minimumWage);
     
     const averageComparison = ((grossSalary / averageWage - 1) * 100).toFixed(1);
     const minimumComparison = ((grossSalary / minimumWage - 1) * 100).toFixed(1);
@@ -300,7 +311,7 @@ function updateMarketComparison(grossSalary, netSalary) {
         averageComparison > 0 ? `+${averageComparison}% az átlag felett` : `${averageComparison}% az átlag alatt`;
     
     document.getElementById('minimumComparison').textContent = 
-        `+${minimumComparison}% a minimálbér felett`;
+        minimumComparison > 0 ? `+${minimumComparison}% a minimálbér felett` : `${minimumComparison}% a minimálbér alatt`;
     
     document.getElementById('yearlyGross').textContent = formatCurrency(grossSalary * 12);
     document.getElementById('yearlyNetDetailed').textContent = formatCurrency(netSalary * 12);
@@ -676,6 +687,21 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('children').value = '1';
     }, 1000);
 });
+
+// Initialize wage display on page load
+async function initializeWageDisplay() {
+    try {
+        const taxData = await loadTaxData();
+        document.getElementById('averageWage').textContent = formatCurrency(taxData.averageWage);
+        document.getElementById('minimumWage').textContent = formatCurrency(taxData.minimumWage);
+    } catch (error) {
+        console.error('Error initializing wage display:', error);
+        // Keep default HTML values if loading fails
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initializeWageDisplay);
 
 // Add smooth scroll behavior
 document.documentElement.style.scrollBehavior = 'smooth';
