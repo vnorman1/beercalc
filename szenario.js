@@ -4,6 +4,26 @@ let scenarioHistory = [];
 let currentScenario = null;
 let currentGrossalary = 0;
 
+// Debug system
+const DEBUG = true; // Set to false to disable debug logs
+function debugLog(message, data = null) {
+    if (DEBUG) {
+        console.log(`🔍 [SCENARIO DEBUG] ${message}`, data ? data : '');
+    }
+}
+
+function debugError(message, error = null) {
+    if (DEBUG) {
+        console.error(`❌ [SCENARIO ERROR] ${message}`, error ? error : '');
+    }
+}
+
+function debugSuccess(message, data = null) {
+    if (DEBUG) {
+        console.log(`✅ [SCENARIO SUCCESS] ${message}`, data ? data : '');
+    }
+}
+
 // Scenario configurations with improved parameters
 const scenarioConfigs = {
     'salary-increase': {
@@ -406,12 +426,20 @@ function validateScenarioData(scenario, data) {
 
 // Calculate scenario with validation
 async function calculateScenario() {
-    if (!currentScenario) return;
+    debugLog('=== SCENARIO CALCULATION STARTED ===');
+    
+    if (!currentScenario) {
+        debugError('No scenario selected');
+        return;
+    }
+    
+    debugLog('Current scenario:', currentScenario);
     
     const config = scenarioConfigs[currentScenario];
     const formData = {};
     
     // Collect form data
+    debugLog('Collecting form data...');
     config.fields.forEach(field => {
         const element = document.getElementById(field.id);
         if (element) {
@@ -420,14 +448,24 @@ async function calculateScenario() {
             } else {
                 formData[field.id] = element.value;
             }
+            debugLog(`Field ${field.id}:`, formData[field.id]);
+        } else {
+            debugError(`Element not found for field: ${field.id}`);
         }
     });    
+    
+    debugLog('Complete form data:', formData);
+    
     // Validate data
+    debugLog('Validating data...');
     const validationErrors = validateScenarioData(currentScenario, formData);
     if (validationErrors.length > 0) {
+        debugError('Validation errors:', validationErrors);
         alert('Hibás adatok:\n' + validationErrors.join('\n'));
         return;
     }
+    
+    debugSuccess('Data validation passed!');
     
     // Calculate scenarios based on type
     let currentResult, newResult;
