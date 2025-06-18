@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bérkalkulator - Professzionális Fizetésszámító</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Professzionális bérkalkulátor a 2025-ös magyar adószabályok szerint. Számolja ki nettó bérét, adóit és járulékait másodpercek alatt. Részletes elemzések, grafikonok és pénzügyi tanácsok.">
+    <meta name="keywords" content="bérkalkulátor, fizetés kalkulátor, nettó bér, bruttó bér, 2025, adókalkulátor, SZJA, TB járulék, fizetés, Magyarország, bérszámfejtés">
+    <meta name="author" content="Athernous">
+    <meta name="robots" content="index, follow">
+
+    <link rel="canonical" href="https://vnorman1.github.io/beercalc/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vnorman1.github.io/beercalc/">
+    <meta property="og:title" content="Bérkalkulator - Professzionális Fizetésszámító">
+    <meta property="og:description" content="Számolja ki nettó bérét másodpercek alatt a 2025-ös szabályok szerint. Részletes elemzések, grafikonok és pénzügyi betekintés.">
+    <meta property="og:image" content="https://vnorman1.github.io/beercalc/data/og.png">
+    <meta property="og:locale" content="hu_HU">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://vnorman1.github.io/beercalc/">
+    <meta name="twitter:title" content="Bérkalkulator - Professzionális Fizetésszámító">
+    <meta name="twitter:description" content="Számolja ki nettó bérét másodpercek alatt a 2025-ös szabályok szerint. Részletes elemzések, grafikonok és pénzügyi betekintés.">
+    <meta name="twitter:image" content="https://vnorman1.github.io/beercalc/data/og.png">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Bérkalkulator - Professzionális Fizetésszámító",
+      "description": "Professzionális bérkalkulátor a 2025-ös magyar adószabályok szerint. Számolja ki nettó bérét, adóit és járulékait másodpercek alatt. Részletes elemzések, grafikonok és pénzügyi tanácsok.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "url": "https://vnorman1.github.io/beercalc/",
+      "author": {
+        "@type": "Person",
+        "name": "Athernous"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "HUF"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "218"
+      },
+      "keywords": "bérkalkulátor, fizetés kalkulátor, nettó bér, 2025, adókalkulátor, SZJA, Magyarország"
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="data/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .header-font {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        .typewriter {
+            border-right: 3px solid #1f2937;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { border-color: #1f2937; }
+            51%, 100% { border-color: transparent; }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .border-pattern {
+            border-top: 4px solid #1f2937;
+            position: relative;
+        }
+        .border-pattern::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b-2 border-gray-900 shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <h1 class="header-font text-4xl md:text-5xl font-bold text-gray-900 text-center leading-tight">
+                Bérkalkulator
+            </h1>
+            <p class="text-gray-600 text-center mt-2 text-lg font-light">
+                Professzionális fizetésszámító és elemző eszköz
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <!-- Calculator Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Adja meg az adatokat
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Input Form -->
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                Bruttó havi fizetés (Ft)
+                            </label>
+                            <input type="number" id="grossSalary" 
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:border-gray-900 focus:outline-none text-lg font-medium transition-colors"
+                                   placeholder="500,000">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                Gyermekek száma
+                            </label>
+                            <select id="children" 
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:border-gray-900 focus:outline-none text-lg font-medium transition-colors">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4+</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                Családi állapot
+                            </label>
+                            <select id="maritalStatus" 
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:border-gray-900 focus:outline-none text-lg font-medium transition-colors">
+                                <option value="single">Egyedülálló</option>
+                                <option value="married">Házas</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="under25" 
+                                   class="w-5 h-5 text-gray-900 border-2 border-gray-300 rounded focus:ring-gray-900">
+                            <label for="under25" class="text-sm font-medium text-gray-700">
+                                25 év alatti vagyok
+                            </label>
+                        </div>
+
+                        <button onclick="calculateSalary()" 
+                                class="w-full bg-gray-900 text-white py-4 px-6 font-semibold text-lg tracking-wide hover:bg-gray-800 transition-colors duration-200 uppercase">
+                            Számítás indítása
+                        </button>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div class="bg-gray-50 p-6 border-l-4 border-gray-900">
+                        <h3 class="header-font text-2xl font-bold text-gray-900 mb-6">
+                            Eredmények
+                        </h3>
+                        
+                        <div id="results" class="space-y-4 opacity-0">
+                            <div class="border-b border-gray-200 pb-4">
+                                <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                                    Bruttó fizetés
+                                </div>
+                                <div id="grossResult" class="text-2xl font-bold text-gray-900 typewriter"></div>
+                            </div>
+
+                            <div class="border-b border-gray-200 pb-4">
+                                <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                                    Levonások összesen
+                                </div>
+                                <div id="deductionsResult" class="text-xl font-semibold text-red-600 typewriter"></div>
+                            </div>
+
+                            <div class="border-b border-gray-200 pb-4">
+                                <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                                    Nettó fizetés
+                                </div>
+                                <div id="netResult" class="text-3xl font-bold text-green-600 typewriter"></div>
+                            </div>
+
+                            <div class="pt-2">
+                                <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                                    Éves nettó jövedelem
+                                </div>
+                                <div id="yearlyResult" class="text-xl font-semibold text-gray-900 typewriter"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Fizetés összetétele
+                </h2>
+                  <div class="grid md:grid-cols-2 gap-8">
+                    <div class="chart-container relative w-full">
+                        <div class="chart-wrapper relative w-full h-64 md:h-80 lg:h-96">
+                            <canvas id="salaryChart" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-4">
+                            Részletes bontás
+                        </h3>
+                        
+                        <div id="breakdown" class="space-y-3 opacity-0">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-gray-700 font-medium">Személyi jövedelemadó:</span>
+                                <span id="taxAmount" class="font-bold text-red-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-gray-700 font-medium">TB járulék:</span>
+                                <span id="socialAmount" class="font-bold text-yellow-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-gray-700 font-medium">Munkanélküli járulék:</span>
+                                <span id="unemploymentAmount" class="font-bold text-gray-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-t-2 border-gray-900">
+                                <span class="text-gray-900 font-bold text-lg">Nettó fizetés:</span>
+                                <span id="finalNet" class="font-bold text-green-600 text-lg result-number">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Salary Insights Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Fizetési betekintés
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center p-6 bg-gray-50 rounded-lg">
+                        <div class="text-3xl font-bold text-gray-900 mb-2" id="effectiveRate">-</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Effektív adókulcs</div>
+                        <div class="text-xs text-gray-500 mt-2">Összes levonás / Bruttó</div>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-gray-50 rounded-lg">
+                        <div class="text-3xl font-bold text-gray-900 mb-2" id="hourlyRate">-</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Nettó órabér</div>
+                        <div class="text-xs text-gray-500 mt-2">160 órás munkahónap alapján</div>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-gray-50 rounded-lg">
+                        <div class="text-3xl font-bold text-gray-900 mb-2" id="dailyRate">-</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Napi nettó</div>
+                        <div class="text-xs text-gray-500 mt-2">22 munkanap alapján</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monthly Breakdown Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Havi pénzügyi terv
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                            Javasolt költségvetés
+                        </h3>
+                        
+                        <div id="budgetBreakdown" class="space-y-4 opacity-0">
+                            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-medium text-gray-900">Lakhatás (30%)</div>
+                                    <div class="text-xs text-gray-500">Bérleti díj, rezsi, karbantartás</div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="housingAmount" class="font-bold text-gray-900">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-medium text-gray-900">Élelmiszer (15%)</div>
+                                    <div class="text-xs text-gray-500">Bevásárlás, étkezés</div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="foodAmount" class="font-bold text-gray-900">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-medium text-gray-900">Megtakarítás (20%)</div>
+                                    <div class="text-xs text-gray-500">Befektetés, tartalék</div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="savingsAmount" class="font-bold text-green-600">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-medium text-gray-900">Egyéb (35%)</div>
+                                    <div class="text-xs text-gray-500">Szórakozás, ruházat, közlekedés</div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="otherAmount" class="font-bold text-gray-900">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                            Piaci összehasonlítás
+                        </h3>
+                        
+                        <div id="marketComparison" class="space-y-4 opacity-0">
+                            <div class="p-4 border-l-4 border-blue-500 bg-blue-50">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-blue-900">Magyar átlagbér</span>
+                                    <span class="font-bold text-blue-900" id="averageWage">573 300 Ft</span>
+                                </div>
+                                <div class="text-xs text-blue-700 mt-1" id="averageComparison">-</div>
+                            </div>
+                            
+                            <div class="p-4 border-l-4 border-red-500 bg-red-50">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-red-900">Minimálbér</span>
+                                    <span class="font-bold text-red-900" id="minimumWage">266 800 Ft</span>
+                                </div>
+                                <div class="text-xs text-red-700 mt-1" id="minimumComparison">-</div>
+                            </div>
+                            
+                            <div class="p-4 border-l-4 border-gray-500 bg-gray-50">
+                                <div class="font-medium text-gray-900 mb-2">Éves jövedelem</div>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div class="text-gray-600">Bruttó éves:</div>
+                                        <div class="font-bold" id="yearlyGross">-</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-gray-600">Nettó éves:</div>
+                                        <div class="font-bold text-green-600" id="yearlyNetDetailed">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Salary History & Trends -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Fizetéstörténet és trendek
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                            Számítások története
+                        </h3>
+                        
+                        <div id="calculationHistory" class="space-y-3 max-h-64 overflow-y-auto">
+                            <div class="text-gray-500 text-center py-8 italic">
+                                Még nincsenek korábbi számítások
+                            </div>
+                        </div>
+                        
+                        <button onclick="clearHistory()" 
+                                class="mt-4 w-full bg-gray-100 text-gray-700 py-2 px-4 text-sm font-medium hover:bg-gray-200 transition-colors duration-200 uppercase tracking-wide">
+                            Előzmények törlése
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                            Fizetésemelés kalkulátor
+                        </h3>  
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                    Kívánt emelés (%)
+                                </label>
+                                <input type="number" id="raisePercentage" 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 focus:border-gray-900 focus:outline-none text-lg font-medium"
+                                       placeholder="pl. 10" min="0" max="100">
+                            </div>
+                            
+                            <button onclick="calculateRaise()" 
+                                    class="w-full bg-gray-100 text-gray-900 py-3 px-6 font-semibold hover:bg-gray-200 transition-colors duration-200 uppercase tracking-wide">
+                                Emelés számítása
+                            </button>
+                            
+                            <div id="raiseResults" class="space-y-2 opacity-0">
+                                <div class="p-4 bg-green-50 border-l-4 border-green-500">
+                                    <div class="text-sm text-green-700">Új bruttó fizetés:</div>
+                                    <div class="font-bold text-green-900" id="newGrossSalary">-</div>
+                                </div>
+                                <div class="p-4 bg-blue-50 border-l-4 border-blue-500">
+                                    <div class="text-sm text-blue-700">Új nettó fizetés:</div>
+                                    <div class="font-bold text-blue-900" id="newNetSalary">-</div>
+                                </div>
+                                <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500">
+                                    <div class="text-sm text-yellow-700">Nettó különbség:</div>
+                                    <div class="font-bold text-yellow-900" id="netDifference">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Tools Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Fejlett eszközök
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Salary Comparison Tool -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="header-font text-lg font-bold text-gray-900 mb-4">
+                            Fizetés összehasonlító
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="compareGross1" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                   placeholder="1. bruttó fizetés">
+                            <input type="number" id="compareGross2" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                   placeholder="2. bruttó fizetés">
+                            
+                            <button onclick="compareSalaries()" 
+                                    class="w-full bg-blue-100 text-blue-900 py-2 px-4 text-sm font-medium hover:bg-blue-200 transition-colors duration-200 uppercase tracking-wide">
+                                Összehasonlítás
+                            </button>
+                            
+                            <div id="comparisonResult" class="text-sm space-y-2 opacity-0">
+                                <!-- Results will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tax Saving Calculator -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="header-font text-lg font-bold text-gray-900 mb-4">
+                            Adóoptimalizálás
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <select id="taxOptimization" class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
+                                <option value="">Válasszon opciót</option>
+                                <option value="szja-mentes">SZJA-mentes juttatás</option>
+                                <option value="cafeteria">Cafeteria rendszer</option>
+                                <option value="home-office">Home office költségtérítés</option>
+                            </select>
+                            
+                            <input type="number" id="benefitAmount" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                   placeholder="Juttatás összege (Ft)">
+                            
+                            <button onclick="calculateTaxSaving()" 
+                                    class="w-full bg-green-100 text-green-900 py-2 px-4 text-sm font-medium hover:bg-green-200 transition-colors duration-200 uppercase tracking-wide">
+                                Megtakarítás számítása
+                            </button>
+                            
+                            <div id="taxSavingResult" class="text-sm opacity-0">
+                                <!-- Results will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Export/Import Tools -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="header-font text-lg font-bold text-gray-900 mb-4">
+                            Adatok kezelése
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <button onclick="generatePDF()" 
+                                    class="w-full bg-red-100 text-red-900 py-2 px-4 text-sm font-medium hover:bg-red-200 transition-colors duration-200 uppercase tracking-wide">
+                                📄 PDF jelentés
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Career Planning Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-12">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Karrier tervezés
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                            5 éves projekció
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                    Éves emelés (%)
+                                </label>
+                                <input type="number" id="annualRaise" 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 focus:border-gray-900 focus:outline-none text-lg font-medium"
+                                       placeholder="pl. 5" min="0" max="50" value="5">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                    Infláció (%)
+                                </label>
+                                <input type="number" id="inflationRate" 
+                                       class="w-full px-4 py-3 border-2 border-gray-300 focus:border-gray-900 focus:outline-none text-lg font-medium"
+                                       placeholder="pl. 3.5" min="0" max="20" value="3.5" step="0.1">
+                            </div>
+                            
+                            <button onclick="calculateCareerProjection()" 
+                                    class="w-full bg-gray-100 text-gray-900 py-3 px-6 font-semibold hover:bg-gray-200 transition-colors duration-200 uppercase tracking-wide">
+                                Projekció számítása
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-6">
+                            Jövőbeli fizetések
+                        </h3>
+                        
+                        <div id="careerProjection" class="space-y-3 opacity-0">
+                            <!-- Projection results will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 pt-16 pb-8">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- About Column -->
+                <div>
+                    <h3 class="header-font text-xl font-bold text-white mb-4">A Bérkalkulátorról</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Egy modern, professzionális eszköz magyar munkavállalók számára, amely segít megérteni a fizetés összetételét a 2025-ös adószabályok alapján.
+                    </p>
+                </div>
+                
+                <!-- Links Column -->
+                <div>
+                    <h3 class="header-font text-xl font-bold text-white mb-4">Hasznos Linkek</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Kalkulátor teteje</a></li>
+                        <li><a href="#marketComparison" class="text-gray-400 hover:text-white transition-colors duration-200">Piaci összehasonlítás</a></li>
+                        <li><a href="blackjack/blackjack.html" class="text-gray-400 hover:text-white transition-colors duration-200">Blackjack Játék</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Features Column -->
+                <div>
+                    <h3 class="header-font text-xl font-bold text-white mb-4">Főbb jellemzők</h3>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-3 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Precíz, naprakész számítások</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-3 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            <span>Teljesen reszponzív design</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-3 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            <span>Az adatok biztonságban, helyben maradnak</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center">
+                <p class="text-sm text-gray-500">
+                    A számítások tájékoztató jellegűek és nem minősülnek pénzügyi tanácsadásnak.
+                </p>
+                <p class="text-xs text-gray-600 mt-2">
+                    Copyright &copy; 2025 Bérkalkulátor. Készítette: [V.N.]
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - Játszd el a nettód</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Tedd próbára a szerencsédet a Blackjack kaszinónkban! Kockáztasd a virtuális fizetésed, és nézd meg, nyersz vagy veszítesz. Izgalmas játék, valódi kaszinó hangulat.">
+    <meta name="keywords" content="blackjack, kaszinó, szerencsejáték, kártyajáték, 21, fizetés, játék, online blackjack">
+    <meta name="author" content="Athernous">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vnorman1.github.io/beercalc/blackjack/blackjack.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vnorman1.github.io/beercalc/blackjack/blackjack.html">
+    <meta property="og:title" content="Blackjack - Játszd el a nettód">
+    <meta property="og:description" content="Tedd próbára a szerencsédet a Blackjack kaszinónkban! Kockáztasd a virtuális fizetésed, és nézd meg, nyersz vagy veszítesz.">
+    <meta property="og:image" content="https://vnorman1.github.io/beercalc/data/og.png">
+    <meta property="og:locale" content="hu_HU">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://vnorman1.github.io/beercalc/blackjack/blackjack.html">
+    <meta name="twitter:title" content="Blackjack - Játszd el a nettód">
+    <meta name="twitter:description" content="Tedd próbára a szerencsédet a Blackjack kaszinónkban! Kockáztasd a virtuális fizetésed, és nézd meg, nyersz vagy veszítesz.">
+    <meta name="twitter:image" content="https://vnorman1.github.io/beercalc/data/og.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="/data/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .header-font {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        .card {
+            width: 60px;
+            height: 84px;
+            border-radius: 8px;
+            border: 2px solid #374151;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px;
+            margin: 2px;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card.red { color: #dc2626; }
+        .card.black { color: #1f2937; }
+        .card-back {
+            background: linear-gradient(45deg, #1f2937, #374151);
+            color: white;
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .border-pattern {
+            border-top: 4px solid #1f2937;
+            position: relative;
+        }
+        .border-pattern::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #6b7280;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b-2 border-gray-900 shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <h1 class="header-font text-4xl md:text-5xl font-bold text-gray-900 text-center leading-tight">
+                🃏 Blackjack Casino
+            </h1>
+            <p class="text-gray-600 text-center mt-2 text-lg font-light">
+                Kockáztasd a fizetésed - Érezd a kaszinó hangulatát
+            </p>
+            <div class="text-center mt-4">
+                <a href="../index.html" class="text-blue-600 hover:text-blue-800 underline">
+                    ← Vissza a bérkalkulátorhoz
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <!-- Game Status -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8">
+            <div class="border-pattern p-8">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-6 bg-green-50 rounded-lg">
+                        <div class="text-3xl font-bold text-green-600 mb-2" id="currentBalance">-</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Jelenlegi egyenleg</div>
+                        <div class="text-xs text-gray-500 mt-2">Nettó fizetésből</div>
+                    </div>
+                    
+                    <div class="p-6 bg-blue-50 rounded-lg">
+                        <div class="text-3xl font-bold text-blue-600 mb-2" id="currentBet">0 Ft</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Jelenlegi tét</div>
+                        <div class="text-xs text-gray-500 mt-2">Ezen a körön</div>
+                    </div>
+                    
+                    <div class="p-6 bg-red-50 rounded-lg">
+                        <div class="text-3xl font-bold text-red-600 mb-2" id="totalLost">0 Ft</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Összes veszteség</div>
+                        <div class="text-xs text-gray-500 mt-2">Indulás óta</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Betting Section -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8" id="bettingSection">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Tétet tegyen fel
+                </h2>
+                
+                <div class="max-w-2xl mx-auto">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <button onclick="setBet(10000)" class="bet-button bg-gray-100 hover:bg-gray-200 py-4 px-6 font-semibold text-lg transition-colors duration-200 uppercase tracking-wide">
+                            10.000 Ft
+                        </button>
+                        <button onclick="setBet(25000)" class="bet-button bg-gray-100 hover:bg-gray-200 py-4 px-6 font-semibold text-lg transition-colors duration-200 uppercase tracking-wide">
+                            25.000 Ft
+                        </button>
+                        <button onclick="setBet(50000)" class="bet-button bg-gray-100 hover:bg-gray-200 py-4 px-6 font-semibold text-lg transition-colors duration-200 uppercase tracking-wide">
+                            50.000 Ft
+                        </button>
+                        <button onclick="setBet(100000)" class="bet-button bg-gray-100 hover:bg-gray-200 py-4 px-6 font-semibold text-lg transition-colors duration-200 uppercase tracking-wide">
+                            100.000 Ft
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                            Egyéni tét összege
+                        </label>
+                        <input type="number" id="customBet" 
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:border-gray-900 focus:outline-none text-lg font-medium transition-colors"
+                               placeholder="Adja meg a tétet..." min="1000" step="1000">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="setCustomBet()" 
+                                class="bg-blue-600 text-white py-4 px-6 font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 uppercase tracking-wide">
+                            Egyéni tét beállítása
+                        </button>
+                        <button onclick="setBet('all')" 
+                                class="bg-red-600 text-white py-4 px-6 font-semibold text-lg hover:bg-red-700 transition-colors duration-200 uppercase tracking-wide">
+                            🎰 MINDEN BEVÁGÁS
+                        </button>
+                    </div>
+                    
+                    <button onclick="startGame()" id="startGameBtn"
+                            class="w-full mt-6 bg-gray-900 text-white py-4 px-6 font-semibold text-lg tracking-wide hover:bg-gray-800 transition-colors duration-200 uppercase"
+                            disabled>
+                        Játék indítása
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Area -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200 mb-8" id="gameArea" style="display: none;">
+            <div class="border-pattern p-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Dealer -->
+                    <div class="text-center">
+                        <h3 class="header-font text-2xl font-bold text-gray-900 mb-4">
+                            🎩 Osztó
+                        </h3>
+                        <div class="text-xl font-bold text-gray-700 mb-4">
+                            Pontok: <span id="dealerScore">-</span>
+                        </div>
+                        <div id="dealerCards" class="flex flex-wrap justify-center mb-4 min-h-[100px]">
+                            <!-- Dealer cards will be added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Player -->
+                    <div class="text-center">
+                        <h3 class="header-font text-2xl font-bold text-gray-900 mb-4">
+                            🎮 Ön
+                        </h3>
+                        <div class="text-xl font-bold text-gray-700 mb-4">
+                            Pontok: <span id="playerScore">-</span>
+                        </div>
+                        <div id="playerCards" class="flex flex-wrap justify-center mb-4 min-h-[100px]">
+                            <!-- Player cards will be added here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Controls -->
+                <div class="text-center mt-8" id="gameControls">
+                    <div class="space-x-4">
+                        <button onclick="hit()" id="hitBtn"
+                                class="bg-green-600 text-white py-3 px-8 font-semibold text-lg hover:bg-green-700 transition-colors duration-200 uppercase tracking-wide">
+                            🃏 Lap kérés
+                        </button>
+                        <button onclick="stand()" id="standBtn"
+                                class="bg-yellow-600 text-white py-3 px-8 font-semibold text-lg hover:bg-yellow-700 transition-colors duration-200 uppercase tracking-wide">
+                            ✋ Megállás
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Game Result -->
+                <div id="gameResult" class="text-center mt-8 opacity-0">
+                    <div class="p-6 rounded-lg border-4" id="resultBox">
+                        <div class="text-2xl font-bold mb-2" id="resultText">-</div>
+                        <div class="text-lg" id="resultAmount">-</div>
+                        <button onclick="newGame()" 
+                                class="mt-4 bg-gray-900 text-white py-3 px-8 font-semibold text-lg hover:bg-gray-800 transition-colors duration-200 uppercase tracking-wide">
+                            Új játék
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Motivational Messages -->
+        <section class="bg-red-100 border-l-4 border-red-500 p-6 rounded-lg mb-8" id="motivationalMsg" style="display: none;">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-800 mb-2">
+                    🎰 "A szerencsejátékfüggők 90%-a a nagy nyeremény előtt feladja"
+                </div>
+                <div class="text-red-700">
+                    Folytatja? A következő kör lehet a szerencséje!
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics -->
+        <section class="bg-white rounded-lg shadow-lg border border-gray-200">
+            <div class="border-pattern p-8">
+                <h2 class="header-font text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Játék statisztikák
+                </h2>
+                
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-gray-900 mb-2" id="gamesPlayed">0</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Játszott körök</div>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600 mb-2" id="gamesWon">0</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Nyert körök</div>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-red-50 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600 mb-2" id="gamesLost">0</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Vesztett körök</div>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600 mb-2" id="winRate">0%</div>
+                        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">Nyerési arány</div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="resetStats()" 
+                            class="bg-gray-100 text-gray-700 py-2 px-6 text-sm font-medium hover:bg-gray-200 transition-colors duration-200 uppercase tracking-wide">
+                        Statisztikák törlése
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 pt-16 pb-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- About Column -->
+                <div>
+                    <h3 class="header-font text-xl font-bold text-white mb-4">A Blackjack Játékról</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Egy szórakoztató szimuláció, ahol a bérkalkulátorban kiszámolt nettó fizetésedet teheted próbára a klasszikus kártyajátékban.
+                    </p>
+                </div>
+                
+                <!-- Links Column -->
+                <div>
+                    <h3 class="header-font text-xl font-bold text-white mb-4">Navigáció</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition-colors duration-200">Vissza a Bérkalkulátorhoz</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Játék teteje</a></li>
+                        <li><a href="#bettingSection" class="text-gray-400 hover:text-white transition-colors duration-200">Új tét felrakása</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Disclaimer Column -->
+                <div>
+                    <h3 class="header-font text-xl font-bold text-white mb-4">Felelősségteljes Játék</h3>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li class="flex items-start">
+                            <svg class="w-4 h-4 mr-3 text-yellow-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <span>Ez a játék csak szimuláció, valódi pénzt nem használ.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-4 h-4 mr-3 text-red-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-12.728 12.728m12.728 0L5.636 5.636"></path></svg>
+                            <span>A szerencsejáték függőséget okozhat. Játssz felelősen!</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center">
+                <p class="text-sm text-gray-500">
+                    A játék szórakoztatási célokat szolgál. A megjelenített összegek nem valósak.
+                </p>
+                <p class="text-xs text-gray-600 mt-2">
+                    Copyright &copy; 2025 Blackjack Casino. Készítette: [V.N.]
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="black.js"></script>
+</body>
+</html>

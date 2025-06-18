@@ -1,0 +1,55 @@
+{
+  "taxRates": {
+    "personalIncomeTax": 0.15,
+    "socialSecurityEmployee": 0.185,
+    "unemploymentEmployee": 0.015,
+    "pensionEmployee": 0.10,
+    "under25Exemption": true
+  },
+  "familyAllowances": {
+    "oneChild": 10000,
+    "twoChildren": 20000,
+    "threeOrMoreChildren": 33000
+  },
+  "minimumWage": 266800,
+  "averageWage": 573300,
+  "currency": "HUF",
+  "lastUpdated": "2025-06-18",
+  "calculatorInfo": {
+    "version": "1.0.0",
+    "description": "Professional Hungarian Salary Calculator",
+    "features": [
+      "Real-time typewriter animation",
+      "Interactive chart visualization", 
+      "Mobile responsive design",
+      "NY Times inspired styling",
+      "Detailed tax breakdown",
+      "Family allowance calculations"
+    ]
+  },
+  "taxBrackets": [
+    {
+      "threshold": 0,
+      "rate": 0.15,
+      "description": "Standard personal income tax rate"
+    }
+  ],
+  "socialBenefits": {
+    "familyTaxAllowance": {
+      "1": 10000,
+      "2": 20000, 
+      "3": 33000,
+      "4": 33000
+    },
+    "under25Exemption": {
+      "personalIncomeTax": 0,
+      "description": "Complete exemption from personal income tax for under 25"
+    }
+  },
+  "disclaimer": "Az adatok tájékoztató jellegűek. A pontos számításokért forduljon szakértőhöz.",
+  "sources": [
+    "NAV - National Tax and Customs Administration",
+    "Hungarian Tax Law 2025",
+    "Ministry of Finance Hungary"
+  ]
+}

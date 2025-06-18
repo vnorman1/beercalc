@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vnorman1.github.io/beercalc/sitemap.xml
