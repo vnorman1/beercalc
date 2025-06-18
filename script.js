@@ -792,7 +792,7 @@ function showBlackjackLink(netSalary) {
                 Kockáztassa a ${formatCurrency(netSalary)} nettó fizetését!
             </p>
             <div class="space-y-4">
-                <a href="/blackjack.html" 
+                <a href="/beercalc/blackjack.html" 
                    class="inline-block bg-white text-red-600 py-4 px-8 font-bold text-xl rounded-lg hover:bg-red-50 transition-colors duration-200 uppercase tracking-wide shadow-lg">
                     🃏 Játék indítása
                 </a>
